@@ -1,4 +1,5 @@
 @echo off
+
 echo Iniciando sistema...
 
 echo.
@@ -13,4 +14,5 @@ start cmd /k "cd frontend && npm start"
 
 echo.
 echo Sistema iniciado!
+
 pause

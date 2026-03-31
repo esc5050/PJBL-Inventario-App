@@ -3,6 +3,12 @@ import axios from "axios";
 
 function App() {
   const [itens, setItens] = useState([]);
+  const [form, setForm] = useState({
+    nome: "",
+    preco_recomendado: "",
+    preco_maximo: "",
+    imagem: "",
+  });
 
   // buscar itens
   const fetchItens = async () => {
@@ -14,10 +20,68 @@ function App() {
     fetchItens();
   }, []);
 
+  // atualizar formulário
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // adicionar item
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    await axios.post("http://localhost:3001/itens", form);
+
+    setForm({
+      nome: "",
+      preco_recomendado: "",
+      preco_maximo: "",
+      imagem: "",
+    });
+
+    fetchItens();
+  };
+
+  // deletar item
+  const handleDelete = async (id) => {
+    await axios.delete(`http://localhost:3001/itens/${id}`);
+    fetchItens();
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Inventário</h1>
 
+      {/* FORMULÁRIO */}
+      <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+        <input
+          name="nome"
+          placeholder="Nome"
+          value={form.nome}
+          onChange={handleChange}
+        />
+        <input
+          name="preco_recomendado"
+          placeholder="Preço recomendado"
+          value={form.preco_recomendado}
+          onChange={handleChange}
+        />
+        <input
+          name="preco_maximo"
+          placeholder="Preço máximo"
+          value={form.preco_maximo}
+          onChange={handleChange}
+        />
+        <input
+          name="imagem"
+          placeholder="URL da imagem"
+          value={form.imagem}
+          onChange={handleChange}
+        />
+
+        <button type="submit">Adicionar</button>
+      </form>
+
+      {/* LISTA */}
       {itens.map((item) => (
         <div
           key={item.id}
@@ -30,7 +94,12 @@ function App() {
           <h3>{item.nome}</h3>
           <p>Preço recomendado: {item.preco_recomendado}</p>
           <p>Preço máximo: {item.preco_maximo}</p>
-          <img src={item.imagem} width="100" />
+          <img src={item.imagem} width="100" alt="item" />
+
+          <br />
+          <button onClick={() => handleDelete(item.id)}>
+            Deletar
+          </button>
         </div>
       ))}
     </div>

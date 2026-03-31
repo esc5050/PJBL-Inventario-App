@@ -10,6 +10,8 @@ function App() {
     imagem: "",
   });
 
+  const [editId, setEditId] = useState(null);
+
   // buscar itens
   const fetchItens = async () => {
     const res = await axios.get("http://localhost:3001/itens");
@@ -25,11 +27,18 @@ function App() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // adicionar item
+  // adicionar ou editar
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await axios.post("http://localhost:3001/itens", form);
+    if (editId) {
+      // EDITAR
+      await axios.put(`http://localhost:3001/itens/${editId}`, form);
+      setEditId(null);
+    } else {
+      // CRIAR
+      await axios.post("http://localhost:3001/itens", form);
+    }
 
     setForm({
       nome: "",
@@ -41,10 +50,21 @@ function App() {
     fetchItens();
   };
 
-  // deletar item
+  // deletar
   const handleDelete = async (id) => {
     await axios.delete(`http://localhost:3001/itens/${id}`);
     fetchItens();
+  };
+
+  // preencher para editar
+  const handleEdit = (item) => {
+    setForm({
+      nome: item.nome,
+      preco_recomendado: item.preco_recomendado,
+      preco_maximo: item.preco_maximo,
+      imagem: item.imagem,
+    });
+    setEditId(item.id);
   };
 
   return (
@@ -78,7 +98,9 @@ function App() {
           onChange={handleChange}
         />
 
-        <button type="submit">Adicionar</button>
+        <button type="submit">
+          {editId ? "Atualizar" : "Adicionar"}
+        </button>
       </form>
 
       {/* LISTA */}
@@ -97,6 +119,11 @@ function App() {
           <img src={item.imagem} width="100" alt="item" />
 
           <br />
+
+          <button onClick={() => handleEdit(item)}>
+            Editar
+          </button>
+
           <button onClick={() => handleDelete(item.id)}>
             Deletar
           </button>
